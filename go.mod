@@ -1,3 +1,3 @@
-module ops-challenge-g
+module github.com/GorginZ/ops-challenge-g
 
 go 1.16

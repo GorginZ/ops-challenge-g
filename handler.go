@@ -15,28 +15,36 @@ type handler struct {
 	stats map[string]uint64
 }
 
+type metrics struct {
+	Token []byte `json:"stats"`
+}
+
 func (h *handler) health(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(200)
 }
 
-// h needs to be pointer in order to change state e.g increment stats
 func (h *handler) token(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	h.stats["requests"] += 1
-	enc := json.NewEncoder(w)
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		doInternalServerError(w, r, err)
 	} else {
+
 		out := createMAC(body, h.key)
 		if out == nil {
 			doInternalServerError(w, r, err)
+			return
 		}
-		fmt.Fprintf(w, "%x", out)
+		metric := metrics{Token: out}
+		json.NewEncoder(w).Encode(metric)
+
+		// fmt.Fprintf(w, "%x", out)
+
 		w.WriteHeader(201)
-		enc.Encode(out)
-		enc.Encode(201)
+
+		// enc.Encode(201)
 	}
 }
 
@@ -48,14 +56,13 @@ func doInternalServerError(w http.ResponseWriter, r *http.Request, err error) {
 }
 
 func (h *handler) metrics(w http.ResponseWriter, r *http.Request) {
-	// FIXME contentType is not set
-
+	w.Header().Set("Content-Type", "application/json")
+	h.stats["requests"] += 1
 	enc := json.NewEncoder(w)
 	// FIXME error not checked
 	enc.Encode(h.stats)
 	// FIXME error not checked
-	// FIXME incorrect code
-	w.WriteHeader(201)
+	w.WriteHeader(200)
 }
 
 func createMAC(message, key []byte) []byte {

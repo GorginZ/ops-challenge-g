@@ -20,7 +20,6 @@ func TestToken(t *testing.T) {
 	h := handler{
 		stats: make(map[string]uint64),
 		key:   []byte("some-baked-in-secret"),
-		// map
 	}
 
 	for _, tt := range tests {
