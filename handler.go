@@ -16,7 +16,7 @@ type handler struct {
 }
 
 type metrics struct {
-	Token []byte `json:"stats"`
+	Token []byte `json:"token"`
 }
 
 func (h *handler) health(w http.ResponseWriter, r *http.Request) {

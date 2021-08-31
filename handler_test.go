@@ -25,7 +25,7 @@ func TestToken(t *testing.T) {
 	for _, tt := range tests {
 		rec := httptest.NewRecorder()
 		// FIXME testing wrong method
-		req, _ := http.NewRequest("GET", "/", strings.NewReader(tt.body))
+		req, _ := http.NewRequest("POST", "/", strings.NewReader(tt.body))
 
 		h.token(rec, req)
 
