@@ -30,9 +30,9 @@ func (h *handler) health(w http.ResponseWriter, r *http.Request) {
 func (h *handler) token(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	enc := json.NewEncoder(w)
-
+	// var lock sync.Mutex
 	h.lock.Lock()
-	defer h.lock.Unlock()
+	// defer lock.Unlock()
 	h.stats["requests"] += 1
 	h.lock.Unlock()
 
@@ -61,7 +61,6 @@ func doInternalServerError(w http.ResponseWriter, r *http.Request, err error) {
 func (h *handler) metrics(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	enc := json.NewEncoder(w)
-	h.stats["requests"] += 1
 
 	metric := appMetrics{}
 	metric.Stats = h.stats
