@@ -16,17 +16,19 @@ type handler struct {
 }
 
 func (h *handler) health(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		w.WriteHeader(400)
+		return
+	}
 	w.WriteHeader(200)
 }
 
 func (h *handler) token(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	enc := json.NewEncoder(w)
-
 	h.lock.Lock()
 	defer h.lock.Unlock()
 	h.stats["requests"] += 1
-
 	if r.Method != "POST" {
 		w.WriteHeader(400)
 		return
@@ -47,25 +49,25 @@ func (h *handler) token(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func createMAC(message, key []byte) []byte {
+	mac := hmac.New(sha1.New, key)
+	mac.Write(message)
+	return mac.Sum(nil)
+}
+
 func (h *handler) metrics(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	enc := json.NewEncoder(w)
-
-	// FIXME error not checked
-
+	if r.Method != "GET" {
+		w.WriteHeader(400)
+		return
+	}
 	h.lock.Lock()
 	defer h.lock.Unlock()
 	stats := h.stats
 	if stats != nil {
 		enc.Encode(stats)
 	} else {
+		w.WriteHeader(500)
 	}
-
-	// FIXME error not checked
-}
-
-func createMAC(message, key []byte) []byte {
-	mac := hmac.New(sha1.New, key)
-	mac.Write(message)
-	return mac.Sum(nil)
 }
