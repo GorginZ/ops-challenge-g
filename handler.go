@@ -49,17 +49,14 @@ func (h *handler) token(w http.ResponseWriter, r *http.Request) {
 		}
 		metric := token{Token: out}
 		enc.Encode(metric)
-		// fmt.Fprintf(w, "%x", out)
-		w.WriteHeader(201)
-		// enc.Encode(201)
 	}
 }
 
 func doInternalServerError(w http.ResponseWriter, r *http.Request, err error) {
 	enc := json.NewEncoder(w)
 	fmt.Println("error: ", err)
+	enc.Encode((err))
 	w.WriteHeader(500)
-	enc.Encode(500)
 }
 
 func (h *handler) metrics(w http.ResponseWriter, r *http.Request) {
@@ -73,7 +70,6 @@ func (h *handler) metrics(w http.ResponseWriter, r *http.Request) {
 	// FIXME error not checked
 	enc.Encode(metric)
 	// FIXME error not checked
-	w.WriteHeader(200)
 }
 
 func createMAC(message, key []byte) []byte {
