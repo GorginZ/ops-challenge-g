@@ -16,10 +16,6 @@ type handler struct {
 	lock  sync.Mutex
 }
 
-type appMetrics struct {
-	Stats map[string]uint64 `json:"stats"`
-}
-
 func (h *handler) health(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(200)
 }
@@ -49,11 +45,11 @@ func (h *handler) metrics(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	enc := json.NewEncoder(w)
 
-	metric := appMetrics{}
-	metric.Stats = h.stats
-
 	// FIXME error not checked
-	enc.Encode(metric)
+
+	h.lock.Lock()
+	defer h.lock.Unlock()
+	enc.Encode(h.stats)
 	// FIXME error not checked
 }
 
