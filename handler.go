@@ -16,9 +16,6 @@ type handler struct {
 	lock  sync.Mutex
 }
 
-type token struct {
-	Token []byte `json:"token"`
-}
 type appMetrics struct {
 	Stats map[string]uint64 `json:"stats"`
 }
@@ -44,16 +41,8 @@ func (h *handler) token(w http.ResponseWriter, r *http.Request) {
 			doInternalServerError(w, r, err)
 			return
 		}
-		metric := token{Token: out}
-		enc.Encode(metric)
+		enc.Encode(out)
 	}
-}
-
-func doInternalServerError(w http.ResponseWriter, r *http.Request, err error) {
-	enc := json.NewEncoder(w)
-	fmt.Println("error: ", err)
-	enc.Encode((err))
-	w.WriteHeader(500)
 }
 
 func (h *handler) metrics(w http.ResponseWriter, r *http.Request) {
@@ -72,4 +61,11 @@ func createMAC(message, key []byte) []byte {
 	mac := hmac.New(sha1.New, key)
 	mac.Write(message)
 	return mac.Sum(nil)
+}
+
+func doInternalServerError(w http.ResponseWriter, r *http.Request, err error) {
+	enc := json.NewEncoder(w)
+	fmt.Println("error: ", err)
+	enc.Encode((err))
+	w.WriteHeader(500)
 }
