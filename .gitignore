@@ -1,6 +1,6 @@
 
 # Binaries for programs and plugins
-"go-ops-challenge-g"
+./go-ops-challenge-g
 *.exe
 *.exe~
 *.dll
