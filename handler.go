@@ -11,10 +11,9 @@ import (
 )
 
 type handler struct {
-	key []byte
-	// FIXME not thread safe
-	// use not map or protect it?
+	key   []byte
 	stats map[string]uint64
+	lock  sync.Mutex
 }
 
 type token struct {
@@ -31,11 +30,9 @@ func (h *handler) health(w http.ResponseWriter, r *http.Request) {
 func (h *handler) token(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	enc := json.NewEncoder(w)
-	var mutex = &sync.Mutex{}
-
-	mutex.Lock()
+	h.lock.Lock()
+	defer h.lock.Unlock()
 	h.stats["requests"] += 1
-	mutex.Unlock()
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -62,7 +59,6 @@ func doInternalServerError(w http.ResponseWriter, r *http.Request, err error) {
 func (h *handler) metrics(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	enc := json.NewEncoder(w)
-	h.stats["requests"] += 1
 
 	metric := appMetrics{}
 	metric.Stats = h.stats
