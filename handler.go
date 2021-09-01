@@ -16,6 +16,7 @@ type handler struct {
 }
 
 func (h *handler) health(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 	if r.Method != "GET" {
 		w.WriteHeader(400)
 		return
