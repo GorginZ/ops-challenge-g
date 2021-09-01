@@ -4,7 +4,6 @@ import (
 	"crypto/hmac"
 	"crypto/sha1"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"sync"
@@ -23,21 +22,28 @@ func (h *handler) health(w http.ResponseWriter, r *http.Request) {
 func (h *handler) token(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	enc := json.NewEncoder(w)
+
 	h.lock.Lock()
 	defer h.lock.Unlock()
 	h.stats["requests"] += 1
 
+	if r.Method != "POST" {
+		w.WriteHeader(400)
+		return
+	}
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		doInternalServerError(w, r, err)
-	} else {
-
-		out := createMAC(body, h.key)
-		if out == nil {
-			doInternalServerError(w, r, err)
-			return
-		}
+		w.WriteHeader(500)
+		enc.Encode(err)
+		return
+	}
+	out := createMAC(body, h.key)
+	if out != nil {
+		w.WriteHeader(200)
 		enc.Encode(out)
+		return
+	} else {
+		w.WriteHeader(500)
 	}
 }
 
@@ -49,7 +55,12 @@ func (h *handler) metrics(w http.ResponseWriter, r *http.Request) {
 
 	h.lock.Lock()
 	defer h.lock.Unlock()
-	enc.Encode(h.stats)
+	stats := h.stats
+	if stats != nil {
+		enc.Encode(stats)
+	} else {
+	}
+
 	// FIXME error not checked
 }
 
@@ -57,11 +68,4 @@ func createMAC(message, key []byte) []byte {
 	mac := hmac.New(sha1.New, key)
 	mac.Write(message)
 	return mac.Sum(nil)
-}
-
-func doInternalServerError(w http.ResponseWriter, r *http.Request, err error) {
-	enc := json.NewEncoder(w)
-	fmt.Println("error: ", err)
-	enc.Encode((err))
-	w.WriteHeader(500)
 }
