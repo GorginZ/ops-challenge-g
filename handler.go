@@ -7,55 +7,69 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"sync"
 )
 
 type handler struct {
 	key []byte
 	// FIXME not thread safe
+	// use not map or protect it?
 	stats map[string]uint64
+}
+
+type token struct {
+	Token []byte `json:"token"`
+}
+type appMetrics struct {
+	Stats map[string]uint64 `json:"stats"`
 }
 
 func (h *handler) health(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(200)
 }
 
-// h needs to be pointer in order to change state e.g increment stats
 func (h *handler) token(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	h.stats["requests"] += 1
 	enc := json.NewEncoder(w)
+	var mutex = &sync.Mutex{}
+
+	mutex.Lock()
+	h.stats["requests"] += 1
+	mutex.Unlock()
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		doInternalServerError(w, r, err)
 	} else {
+
 		out := createMAC(body, h.key)
 		if out == nil {
 			doInternalServerError(w, r, err)
+			return
 		}
-		fmt.Fprintf(w, "%x", out)
-		w.WriteHeader(201)
-		enc.Encode(out)
-		enc.Encode(201)
+		metric := token{Token: out}
+		enc.Encode(metric)
 	}
 }
 
 func doInternalServerError(w http.ResponseWriter, r *http.Request, err error) {
 	enc := json.NewEncoder(w)
 	fmt.Println("error: ", err)
+	enc.Encode((err))
 	w.WriteHeader(500)
-	enc.Encode(500)
 }
 
 func (h *handler) metrics(w http.ResponseWriter, r *http.Request) {
-	// FIXME contentType is not set
-
+	w.Header().Set("Content-Type", "application/json")
 	enc := json.NewEncoder(w)
+	h.stats["requests"] += 1
+
+	metric := appMetrics{}
+	metric.Stats = h.stats
+
 	// FIXME error not checked
-	enc.Encode(h.stats)
+	enc.Encode(metric)
 	// FIXME error not checked
-	// FIXME incorrect code
-	w.WriteHeader(201)
 }
 
 func createMAC(message, key []byte) []byte {
