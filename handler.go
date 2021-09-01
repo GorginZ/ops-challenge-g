@@ -30,11 +30,9 @@ func (h *handler) health(w http.ResponseWriter, r *http.Request) {
 func (h *handler) token(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	enc := json.NewEncoder(w)
-	// var lock sync.Mutex
 	h.lock.Lock()
-	// defer lock.Unlock()
+	defer h.lock.Unlock()
 	h.stats["requests"] += 1
-	h.lock.Unlock()
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
