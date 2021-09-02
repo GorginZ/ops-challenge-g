@@ -4,7 +4,7 @@ set -e
 
 ecrname=$(aws cloudformation describe-stacks --stack-name ops-challenge-g-ecr --query "Stacks[0].Outputs[?OutputKey=='RepositoryName'].OutputValue" --output text)
 
-mycertarn=$(aws ssm get-parameter --name "/cfg/georgia-app/cert-arn" --output text --query 'Parameter.Value' --no-cli-pager)
+# mycertarn=$(aws ssm get-parameter --name "/cfg/georgia-app/cert-arn" --output text --query 'Parameter.Value' --no-cli-pager)
 
 name='vpc-and-networking-stack-ops-challenge-g'
 
@@ -16,7 +16,7 @@ aws cloudformation deploy \
             RepositoryName=$name \
             ECRRepositoryName=$ecrname \
             Commit=$commit \
-            MyCertARN=$mycertarn \
+            # MyCertARN=$mycertarn \
       --stack-name $name \
       --region ap-southeast-2 \
       --no-fail-on-empty-changeset
