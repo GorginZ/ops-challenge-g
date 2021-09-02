@@ -462,14 +462,6 @@ Resources:
         - !Ref PrivateSubnetA
         - !Ref PrivateSubnetB
 
-  SsmAccessProfile:
-    Type: AWS::IAM::InstanceProfile
-    Properties: 
-      InstanceProfileName: ssm-role
-      Path: "/"
-      Roles: 
-        - String
-
   RootRole: 
     Type: "AWS::IAM::Role"
     Properties: 
