@@ -39,7 +39,7 @@ jobs:
         ./bin/10-build-and-publish 
 
   deploy:
-    - name: Configure AWS credentials
+    - name: Configure AWS credentials for deploy
       uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
