@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+# set e think about other stuffs
 set -e
 
 ecrname=$(aws cloudformation describe-stacks --stack-name ops-challenge-g-ecr --query "Stacks[0].Outputs[?OutputKey=='RepositoryName'].OutputValue" --output text)

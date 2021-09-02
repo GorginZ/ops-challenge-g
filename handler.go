@@ -39,6 +39,7 @@ func (h *handler) token(w http.ResponseWriter, r *http.Request) {
 func (h *handler) giveToken(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	enc := json.NewEncoder(w)
+	// close body
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		w.WriteHeader(500)
@@ -64,15 +65,16 @@ func createMAC(message, key []byte) []byte {
 
 func (h *handler) metrics(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	enc := json.NewEncoder(w)
 	if r.Method != "GET" {
 		w.WriteHeader(400)
 		return
 	}
 	h.lock.Lock()
 	defer h.lock.Unlock()
+	//look for the key!!!
 	stats := h.stats
 	if stats != nil {
+		enc := json.NewEncoder(w)
 		enc.Encode(stats)
 	} else {
 		w.WriteHeader(500)
