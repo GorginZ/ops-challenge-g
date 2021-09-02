@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+set -e
+
+ecrname=$(aws cloudformation describe-stacks --stack-name ops-challenge-g-ecr --query "Stacks[0].Outputs[?OutputKey=='RepositoryName'].OutputValue" --output text)
+commit=$(git describe --tags --always)
+
+docker build -t "$ecrname:$commit" . --build-arg secret=$SECRET 
+docker push "$ecrname:$commit"
+
+docker build -t "$ecrname:latest" . --build-arg secret=$SECRET
+docker push "$ecrname:latest"
