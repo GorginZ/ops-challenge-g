@@ -29,12 +29,14 @@ func TestToken(t *testing.T) {
 		h.token(rec, req)
 
 		mac := createMAC([]byte(tt.body), h.key)
-		tok := token{}
+
+		var tok []byte
 		err := json.Unmarshal([]byte(rec.Body.Bytes()), &tok)
 		if err != nil {
 			panic(err)
 		}
-		actual := tok.Token
+		actual := tok
+
 		if !hmac.Equal(actual, mac) {
 			t.Errorf("failed to validate hmac")
 		}

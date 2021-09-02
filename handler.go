@@ -4,7 +4,6 @@ import (
 	"crypto/hmac"
 	"crypto/sha1"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"sync"
@@ -16,60 +15,66 @@ type handler struct {
 	lock  sync.Mutex
 }
 
-type token struct {
-	Token []byte `json:"token"`
-}
-type appMetrics struct {
-	Stats map[string]uint64 `json:"stats"`
-}
-
 func (h *handler) health(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	if r.Method != "GET" {
+		w.WriteHeader(400)
+		return
+	}
 	w.WriteHeader(200)
 }
 
 func (h *handler) token(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	enc := json.NewEncoder(w)
 	h.lock.Lock()
 	defer h.lock.Unlock()
 	h.stats["requests"] += 1
-
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		doInternalServerError(w, r, err)
-	} else {
-
-		out := createMAC(body, h.key)
-		if out == nil {
-			doInternalServerError(w, r, err)
-			return
-		}
-		metric := token{Token: out}
-		enc.Encode(metric)
+	if r.Method != "POST" {
+		w.WriteHeader(400)
+		return
 	}
+	h.giveToken(w, r)
 }
 
-func doInternalServerError(w http.ResponseWriter, r *http.Request, err error) {
-	enc := json.NewEncoder(w)
-	fmt.Println("error: ", err)
-	enc.Encode((err))
-	w.WriteHeader(500)
-}
-
-func (h *handler) metrics(w http.ResponseWriter, r *http.Request) {
+func (h *handler) giveToken(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	enc := json.NewEncoder(w)
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(500)
+		enc.Encode(err)
+		return
+	}
+	out := createMAC(body, h.key)
+	if out != nil {
+		w.WriteHeader(200)
+		enc.Encode(out)
+		return
+	} else {
+		w.WriteHeader(500)
+	}
 
-	metric := appMetrics{}
-	metric.Stats = h.stats
-
-	// FIXME error not checked
-	enc.Encode(metric)
-	// FIXME error not checked
 }
 
 func createMAC(message, key []byte) []byte {
 	mac := hmac.New(sha1.New, key)
 	mac.Write(message)
 	return mac.Sum(nil)
+}
+
+func (h *handler) metrics(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	enc := json.NewEncoder(w)
+	if r.Method != "GET" {
+		w.WriteHeader(400)
+		return
+	}
+	h.lock.Lock()
+	defer h.lock.Unlock()
+	stats := h.stats
+	if stats != nil {
+		enc.Encode(stats)
+	} else {
+		w.WriteHeader(500)
+	}
 }
