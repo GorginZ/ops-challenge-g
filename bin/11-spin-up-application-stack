@@ -6,7 +6,7 @@ ecrname=$(aws cloudformation describe-stacks --stack-name ops-challenge-g-ecr --
 
 # mycertarn=$(aws ssm get-parameter --name "/cfg/georgia-app/cert-arn" --output text --query 'Parameter.Value' --no-cli-pager)
 
-name='vpc-and-networking-stack-ops-challenge-g'
+name='app-stack-ops-challenge-g'
 
 commit=$(git describe --tags --always)
 
