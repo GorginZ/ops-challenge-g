@@ -460,11 +460,11 @@ Resources:
         - !Ref PrivateSubnetA
         - !Ref PrivateSubnetB
 
+# tighten up this role
   RootRole: 
     Type: "AWS::IAM::Role"
     Properties: 
       AssumeRolePolicyDocument: 
-        # Version: "2012-10-17"
         Statement: 
           - 
             Effect: "Allow"
@@ -479,7 +479,6 @@ Resources:
     Properties: 
       PolicyName: "root"
       PolicyDocument: 
-        # Version: "2012-10-17"
         Statement: 
           - Effect: "Allow"
             Action: "*"
@@ -513,7 +512,7 @@ Resources:
               docker run -p 80:80 ${ECR_repository}:${Current_commit}
             - Current_commit: !Ref Commit 
               ECR_repository: !Ref ECRRepositoryName
-      LaunchTemplateName: ${RepositoryName}
+      LaunchTemplateName: !Sub ${RepositoryName}
 
 Outputs:
   VPC:
