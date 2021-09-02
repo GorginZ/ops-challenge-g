@@ -369,7 +369,7 @@ Resources:
       HealthCheckProtocol: HTTP
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
-      Name: !Sub ${RepositoryName}-target-group
+      Name: !Sub ${RepositoryName}
       Port: 80
       Protocol: HTTP
       TargetType: instance
@@ -414,7 +414,7 @@ Resources:
   LaunchConfigSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: !Sub ${RepositoryName}-SecurityGroup
+      GroupDescription: !Sub ${RepositoryName}-SG
       VpcId: !Ref BasicVpc
       SecurityGroupIngress:
         - IpProtocol: tcp
