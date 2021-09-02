@@ -8,8 +8,8 @@ Parameters:
   ECRRepositoryName:
     Type: String
 
-  MyCertARN:
-    Type: String
+  # MyCertARN:
+  #   Type: String
 
   RepositoryName:
     Type: String
