@@ -3,7 +3,7 @@ name: ops-challenge-g
 
 on:
   pull_request:
-    branches: [ $default-branch ]
+    branches: [ main ]
 
 jobs:
 
