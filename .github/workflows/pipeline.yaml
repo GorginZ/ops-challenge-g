@@ -28,7 +28,12 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
+    - name: spin-up (temp) Amazon ECR
+      id: spin-up-ecr
+      run: |
+        ./bin/00-spin-up-ecr 
+
     - name: Build, tag, and push image to Amazon ECR
       id: build-image
       run: |
-        ./bin/10-build-and-push-image.sh 
+        ./bin/10-build-and-publish 
