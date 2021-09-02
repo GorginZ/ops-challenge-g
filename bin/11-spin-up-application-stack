@@ -18,5 +18,6 @@ aws cloudformation deploy \
             Commit=$commit \
       --stack-name $name \
       --region ap-southeast-2 \
-			--capabilities CAPABILITY_NAMED_IAM
+			--capabilities CAPABILITY_NAMED_IAM \
+			--capabilities CAPABILITY_IAM \
       --no-fail-on-empty-changeset
