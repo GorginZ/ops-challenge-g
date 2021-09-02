@@ -19,3 +19,4 @@ aws cloudformation deploy \
       --stack-name $name \
       --region ap-southeast-2 \
       --no-fail-on-empty-changeset
+			--capabilities CAPABILITY_NAMED_IAM
