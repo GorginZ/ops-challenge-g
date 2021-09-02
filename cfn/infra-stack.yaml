@@ -369,7 +369,7 @@ Resources:
       HealthCheckProtocol: HTTP
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
-      Name: '{RepositoryName}-target-group'
+      Name: !Sub ${RepositoryName}-target-group
       Port: 80
       Protocol: HTTP
       TargetType: instance
