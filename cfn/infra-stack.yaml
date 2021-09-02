@@ -498,6 +498,7 @@ Resources:
       LaunchTemplateData: 
         IamInstanceProfile:
           Name: RootRole
+        ImageId: ami-0aab712d6363da7f9
         InstanceInitiatedShutdownBehavior: terminate
         InstanceType: t2.micro
         SecurityGroupIds: 
