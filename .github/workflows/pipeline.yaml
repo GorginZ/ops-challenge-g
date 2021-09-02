@@ -39,6 +39,10 @@ jobs:
         ./bin/10-build-and-publish 
 
   deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
     - name: Configure AWS credentials for deploy
       uses: aws-actions/configure-aws-credentials@v1
       with:
