@@ -509,7 +509,7 @@ Resources:
               service docker start
               $(aws ecr get-login --no-include-email --region ap-southeast-2)
               docker pull ${ECR_repository}:${Current_commit}
-              docker run -p 80:80 ${ECR_repository}:${Current_commit}
+              docker run -p 80:8080 ${ECR_repository}:${Current_commit}
             - Current_commit: !Ref Commit 
               ECR_repository: !Ref ECRRepositoryName
       LaunchTemplateName: !Sub ${RepositoryName}
