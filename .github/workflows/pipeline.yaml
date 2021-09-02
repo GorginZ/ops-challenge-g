@@ -50,6 +50,3 @@ jobs:
       id: spin-up-ecr
       run: |
         ./bin/11-spin-up-application-stack 
-
-
-
