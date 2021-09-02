@@ -344,20 +344,18 @@ Resources:
             Query: "#{query}"
             StatusCode: "HTTP_301"
 
-  ALBHTTPSListener:
-    Type: AWS::ElasticLoadBalancingV2::Listener
-    Properties:
-      LoadBalancerArn: !Ref ALB
-      Port: 80
-      Protocol: HTTP
-      # cert pending
-      # Port: 443
-      # Protocol: HTTPS
-      # Certificates:
-      #   - CertificateArn: !Ref MyCertARN
-      DefaultActions:
-        - Type: forward
-          TargetGroupArn: !Ref ALBTargetGroup
+  # ALBHTTPSListener:
+  #   Type: AWS::ElasticLoadBalancingV2::Listener
+  #   Properties:
+  #     LoadBalancerArn: !Ref ALB
+  #     cert pending
+  #     Port: 443
+  #     Protocol: HTTPS
+  #     Certificates:
+  #       - CertificateArn: !Ref MyCertARN
+  #     DefaultActions:
+  #       - Type: forward
+  #         TargetGroupArn: !Ref ALBTargetGroup
 
   ALBTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
