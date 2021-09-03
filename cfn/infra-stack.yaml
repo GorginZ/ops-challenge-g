@@ -367,7 +367,7 @@ Resources:
   ALBAliasRecord:
     Type: AWS::Route53::RecordSet
     Properties:
-      Name: ops-challenge.georgialeng.com.
+      Name: opschallenge.georgialeng.com.
       Type: A
       HostedZoneId: !Ref MyHostedZoneId
       AliasTarget:
