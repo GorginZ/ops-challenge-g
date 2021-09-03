@@ -1,5 +1,6 @@
 # OPS-CHALLENGE-G
 
+[![ops-challenge-g](https://github.com/GorginZ/ops-challenge-g/actions/workflows/pipeline.yaml/badge.svg)](https://github.com/GorginZ/ops-challenge-g/actions/workflows/pipeline.yaml)
 
 **endpoints:**
 
