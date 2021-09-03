@@ -6,7 +6,7 @@ ecrname=$(aws cloudformation describe-stacks --stack-name ops-challenge-g-ecr --
 
 mycertarn=$(aws ssm get-parameter --name "/georgialeng.com/ops-challenge-cert-arn" --output text --query 'Parameter.Value' --no-cli-pager)
 
-myhostedzoneid=$(ssm get-parameter --name "/georgialeng.com/public-hosted-zone-id" --output text --query 'Paramater.Value' --no-cli-pager)
+myhostedzoneid=$(aws ssm get-parameter --name "/georgialeng.com/public-hosted-zone-id" --output text --query 'Paramater.Value' --no-cli-pager)
 
 
 name='app-stack-ops-challenge-g'
