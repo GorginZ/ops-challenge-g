@@ -158,6 +158,9 @@ Resources:
       SubnetId: !Ref PrivateSubnetB
       RouteTableId: !Ref PrivateRouteTableB
 
+# trying to lock down vpc need to revise these strict NACLs
+# open on ephemeral ports for narrow CIDR blocks
+#NACL rules for public subnets
   BasicVpcNACLA:
     Type: AWS::EC2::NetworkAcl
     Properties:
@@ -166,6 +169,7 @@ Resources:
         - Key: Name
           Value: !Ref RepositoryName
 
+# let internet in
   NACLAInboundClientTraffic:
     Type: AWS::EC2::NetworkAclEntry
     Properties:
@@ -179,6 +183,7 @@ Resources:
         From: 1024
         To: 65535
 
+# let private subnetA traffic in
   NACLAInboundPrivateSubnetA:
     Type: AWS::EC2::NetworkAclEntry
     Properties:
@@ -192,6 +197,7 @@ Resources:
         From: 1024
         To: 65535
 
+# let private subnetB into public
   NACLAInboundPrivateSubnetB:
     Type: AWS::EC2::NetworkAclEntry
     Properties:
@@ -205,6 +211,7 @@ Resources:
         From: 1024
         To: 65535
 
+# let traffic out from public subnets to internet
   NACLAOutbound:
     Type: AWS::EC2::NetworkAclEntry
     Properties:
@@ -216,6 +223,7 @@ Resources:
       RuleAction: allow
       CidrBlock: 0.0.0.0/0
 
+# associates NACL rules with public subnetA
   PublicSubnetNACLAAssociationA:
     Type: AWS::EC2::SubnetNetworkAclAssociation
     Properties:
@@ -224,6 +232,7 @@ Resources:
         NetworkAclId:
           Ref: BasicVpcNACLA
 
+# associate NACL rules with public subnetB
   PublicSubnetNACLAAssociationB:
     Type: AWS::EC2::SubnetNetworkAclAssociation
     Properties:
@@ -232,6 +241,7 @@ Resources:
       NetworkAclId:
         Ref: BasicVpcNACLA
 
+  # NACLB is private subnet NACL rules
   BasicVpcNACLB:
     Type: AWS::EC2::NetworkAcl
     Properties:
@@ -240,7 +250,7 @@ Resources:
         - Key: Name
           Value: !Ref RepositoryName
 
-
+# let public subnet A traffic into private subnets
   NACLBPublicSubnetAInbound:
     Type: AWS::EC2::NetworkAclEntry
     Properties:
@@ -251,6 +261,7 @@ Resources:
       RuleAction: allow
       CidrBlock: 10.0.0.0/24
 
+# let public subnet B traffic into private subnets
   NACLBPublicSubnetBInbound:
     Type: AWS::EC2::NetworkAclEntry
     Properties:
@@ -261,6 +272,7 @@ Resources:
       RuleAction: allow
       CidrBlock: 10.0.1.0/24
 
+# let private subnet A in
   NACLBInboundRule103:
     Type: AWS::EC2::NetworkAclEntry
     Properties:
@@ -271,6 +283,7 @@ Resources:
       RuleAction: allow
       CidrBlock: 10.0.2.0/24
 
+# let private subnet B in
   NACLBInboundRule104:
     Type: AWS::EC2::NetworkAclEntry
     Properties:
@@ -281,7 +294,8 @@ Resources:
       RuleAction: allow
       CidrBlock: 10.0.3.0/24
 
-# pretty sure this is s3, it's broad (/16) without this can't pull image
+# pretty sure this is s3, it's broad (/16) without this the instances can't pull image 
+# S3 vpc endpoint workaround wasn't working
   NACLBInboundRule105:
     Type: AWS::EC2::NetworkAclEntry
     Properties:
@@ -292,6 +306,7 @@ Resources:
       RuleAction: allow
       CidrBlock: 52.95.0.0/16
 
+# let traffic out of private subnets
   NACLBOutbound:
     Type: AWS::EC2::NetworkAclEntry
     Properties:
@@ -303,6 +318,7 @@ Resources:
       RuleAction: allow
       CidrBlock: 0.0.0.0/0
 
+# above rules associated to private subnet A
   PrivateSubnetNACLBAssociationA:
     Type: AWS::EC2::SubnetNetworkAclAssociation
     Properties:
@@ -311,6 +327,7 @@ Resources:
         NetworkAclId:
           Ref: BasicVpcNACLB
 
+# above rules associated to private subnet B
   PrivateSubnetNACLBAssociationB:
     Type: AWS::EC2::SubnetNetworkAclAssociation
     Properties:
