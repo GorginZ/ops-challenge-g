@@ -8,8 +8,11 @@ Parameters:
   ECRRepositoryName:
     Type: String
 
-  # MyCertARN:
-  #   Type: String
+  MyCertARN:
+    Type: String
+  
+  MyHostedZoneId:
+    Type: String
 
   RepositoryName:
     Type: String
@@ -344,18 +347,30 @@ Resources:
             Query: "#{query}"
             StatusCode: "HTTP_301"
 
-  # ALBHTTPSListener:
-  #   Type: AWS::ElasticLoadBalancingV2::Listener
-  #   Properties:
-  #     LoadBalancerArn: !Ref ALB
-  #     cert pending
-  #     Port: 443
-  #     Protocol: HTTPS
-  #     Certificates:
-  #       - CertificateArn: !Ref MyCertARN
-  #     DefaultActions:
-  #       - Type: forward
-  #         TargetGroupArn: !Ref ALBTargetGroup
+  ALBAliasRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Name: ops-challenge.georgialeng.com.
+      Type: A
+      HostedZoneId: !Ref MyHostedZoneId
+      AliasTarget:
+        DNSName: !GetAtt ALB.DNSName 
+        HostedZoneId: !GetAtt ALB.CanonicalHostedZoneID
+        # DNSName: !Ref ALBDnsName
+        # HostedZoneId: !Ref ALBCanonicalHostedZoneID
+
+
+  ALBHTTPSListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref ALB
+      Port: 443
+      Protocol: HTTPS
+      Certificates:
+        - CertificateArn: !Ref MyCertARN
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref ALBTargetGroup
 
   ALBTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
@@ -396,16 +411,12 @@ Resources:
       VpcId: !Ref BasicVpc
       SecurityGroupIngress:
         - IpProtocol: tcp
-          # FromPort: 80
-          # ToPort: 443
           FromPort: 80
-          ToPort: 8080
+          ToPort: 443
           CidrIp: "203.34.100.0/24"
         - IpProtocol: tcp
-          # FromPort: 80
-          # ToPort: 443
           FromPort: 80
-          ToPort: 8080
+          ToPort: 443
           CidrIp: "49.255.41.116/30"
 
 

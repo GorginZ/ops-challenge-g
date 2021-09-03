@@ -4,7 +4,10 @@ set -e
 
 ecrname=$(aws cloudformation describe-stacks --stack-name ops-challenge-g-ecr --query "Stacks[0].Outputs[?OutputKey=='RepositoryName'].OutputValue" --output text)
 
-# mycertarn=$(aws ssm get-parameter --name "/cfg/georgia-app/cert-arn" --output text --query 'Parameter.Value' --no-cli-pager)
+mycertarn=$(aws ssm get-parameter --name "/georgialeng.com/ops-challenge-cert-arn" --output text --query 'Parameter.Value' --no-cli-pager)
+
+myhostedzoneid=$(ssm get-parameter --name "/georgialeng.com/public-hosted-zone-id" --output text --query 'Paramater.Value' --no-cli-pager)
+
 
 name='app-stack-ops-challenge-g'
 
@@ -16,6 +19,8 @@ aws cloudformation deploy \
             RepositoryName=$name \
             ECRRepositoryName=$ecrname \
             Commit=$commit \
+            MyHostedZoneId=$myhostedzoneid \
+            MyCertARN=$mycertarn \
       --stack-name $name \
       --region ap-southeast-2 \
 			--capabilities CAPABILITY_NAMED_IAM \
