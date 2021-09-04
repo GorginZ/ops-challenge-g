@@ -18,6 +18,9 @@ Parameters:
     Type: String
 
 Resources:
+# VPC with public and private subnets TODO: 3rd subnets in AZ3
+# ASG instances  sit in private subnets traffic routed to them via 
+# ALB sittin in public subnet
   BasicVpc:
     Type: AWS::EC2::VPC
     Properties:
@@ -336,19 +339,7 @@ Resources:
       NetworkAclId:
         Ref: BasicVpcNACLB
 
-
-  # PrivateSubnets:
-  #   Type: String
-
-  # PrivateRouteTables:
-  #   Type: String
-
-  # LaunchConfigSG:
-  #   Type: String
-
   # VPC endpoints these are required because of the very restrictive NACLS
-
-Resources:
   VPCEndpointSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
@@ -360,7 +351,7 @@ Resources:
           ToPort: 443
           # CidrIp: "10.0.0.0/16"
           #maybe change to just vpc cidr block to make deleting stuff easier...
-          SourceSecurityGroupId: !Ref LaunchConfigSG
+          SourceSecurityGroupId: !Ref LaunchConfigSecurityGroup
 
 
   S3Endpoint:
