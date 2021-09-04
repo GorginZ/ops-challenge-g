@@ -473,6 +473,8 @@ Resources:
       PrivateDnsEnabled: True
       SecurityGroupIds: 
         - !Ref VPCEndpointSecurityGroup
+        - Fn::GetAtt: ALBSecurityGroup.GroupId
+        # maybe I need this to allow inboun from instance? the alb sg
 
 # loadbalancer provisioned  in public subnets
   ALB:
