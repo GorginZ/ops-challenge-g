@@ -170,7 +170,7 @@ Resources:
       VpcId: !Ref BasicVpc
       Tags:
         - Key: Name
-          Value: !sub "NACL-A{RepositoryName}"
+          Value: !Sub NACL-A${RepositoryName}
 
 # let internet in
   NACLAInboundClientTraffic:
@@ -251,7 +251,7 @@ Resources:
       VpcId: !Ref BasicVpc
       Tags:
         - Key: Name
-          Value: !sub "NACL-B{RepositoryName}"
+          Value: !Sub 'NACL-B${RepositoryName}'
 # let public subnet A traffic into private subnets
   NACLBPublicSubnetAInbound:
     Type: AWS::EC2::NetworkAclEntry
@@ -625,6 +625,10 @@ Resources:
           Fn::Base64: !Sub
             - |
               #!/usr/bin/env bash
+              cd /tmp
+              sudo yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
+              sudo systemctl enable amazon-ssm-agent
+              sudo systemctl start amazon-ssm-agent
               service docker start
               $(aws ecr get-login --no-include-email --region ap-southeast-2)
               docker pull ${ECR_repository}:${Current_commit}
