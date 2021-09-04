@@ -170,7 +170,7 @@ Resources:
       VpcId: !Ref BasicVpc
       Tags:
         - Key: Name
-          Value: !Ref RepositoryName
+          Value: !sub "NACL-A{RepositoryName}"
 
 # let internet in
   NACLAInboundClientTraffic:
@@ -251,8 +251,7 @@ Resources:
       VpcId: !Ref BasicVpc
       Tags:
         - Key: Name
-          Value: !Ref RepositoryName
-
+          Value: !sub "NACL-B{RepositoryName}"
 # let public subnet A traffic into private subnets
   NACLBPublicSubnetAInbound:
     Type: AWS::EC2::NetworkAclEntry
