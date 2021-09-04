@@ -42,7 +42,6 @@ Resources:
         - Key: Name
           Value: !Sub public-sn-a${RepositoryName}
 
-
   PublicSubnetB:
     Type: AWS::EC2::Subnet
     Properties:
