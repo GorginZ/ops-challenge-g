@@ -179,9 +179,6 @@ Resources:
       DestinationCidrBlock: 0.0.0.0/0
       NatGatewayId:
         Ref: NatA
-      Tags:
-        - Key: Name
-          Value: !Sub NAT-route-A${RepositoryName}
 
   NatRouteB:
     Type: AWS::EC2::Route
@@ -191,9 +188,6 @@ Resources:
       DestinationCidrBlock: 0.0.0.0/0
       NatGatewayId:
         Ref: NatB
-      Tags:
-        - Key: Name
-          Value: !Sub NAT-route-B${RepositoryName}
 
   PrivateSubnetARouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
