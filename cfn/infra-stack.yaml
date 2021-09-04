@@ -38,6 +38,10 @@ Resources:
       AvailabilityZone: ap-southeast-2a
       VpcId: !Ref BasicVpc
       MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub public-sn-a${RepositoryName}
+
 
   PublicSubnetB:
     Type: AWS::EC2::Subnet
@@ -46,6 +50,10 @@ Resources:
       AvailabilityZone: ap-southeast-2b
       VpcId: !Ref BasicVpc
       MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub public-sn-b${RepositoryName}
+
 
   PrivateSubnetA:
     Type: AWS::EC2::Subnet
@@ -53,18 +61,29 @@ Resources:
       CidrBlock: 10.0.2.0/24
       AvailabilityZone: ap-southeast-2a
       VpcId: !Ref BasicVpc
+      Tags:
+        - Key: Name
+          Value: !Sub private-sn-a${RepositoryName}
+
 
   PrivateSubnetB:
     Type: AWS::EC2::Subnet
     Properties:
       CidrBlock: 10.0.3.0/24
-      AvailabilityZone: ap-southeast-2b
+j     AvailabilityZone: ap-southeast-2b
       VpcId: !Ref BasicVpc
+      Tags:
+        - Key: Name
+          Value: !Sub private-sn-b${RepositoryName}
 
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref BasicVpc
+      Tags:
+        - Key: Name
+          Value: !Sub public-rt-${RepositoryName}
+
 
   InternetGateway:
     Type: AWS::EC2::InternetGateway
@@ -125,11 +144,19 @@ Resources:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref BasicVpc
+      Tags:
+        - Key: Name
+          Value: !Sub private-rt-a${RepositoryName}
+
 
   PrivateRouteTableB:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref BasicVpc
+      Tags:
+        - Key: Name
+          Value: !Sub private-rt-b${RepositoryName}
+
 
   NatRouteA:
     Type: AWS::EC2::Route
