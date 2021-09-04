@@ -70,7 +70,7 @@ Resources:
     Type: AWS::EC2::Subnet
     Properties:
       CidrBlock: 10.0.3.0/24
-j     AvailabilityZone: ap-southeast-2b
+      AvailabilityZone: ap-southeast-2b
       VpcId: !Ref BasicVpc
       Tags:
         - Key: Name
@@ -83,7 +83,6 @@ j     AvailabilityZone: ap-southeast-2b
       Tags:
         - Key: Name
           Value: !Sub public-rt-${RepositoryName}
-
 
   InternetGateway:
     Type: AWS::EC2::InternetGateway
