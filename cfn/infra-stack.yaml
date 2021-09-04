@@ -336,6 +336,106 @@ Resources:
       NetworkAclId:
         Ref: BasicVpcNACLB
 
+
+  # PrivateSubnets:
+  #   Type: String
+
+  # PrivateRouteTables:
+  #   Type: String
+
+  # LaunchConfigSG:
+  #   Type: String
+
+  # VPC endpoints these are required because of the very restrictive NACLS
+
+Resources:
+  VPCEndpointSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      VpcId: !Ref BasicVpc
+      GroupDescription: 'Security group for VPC Endpoint'
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          # CidrIp: "10.0.0.0/16"
+          #maybe change to just vpc cidr block to make deleting stuff easier...
+          SourceSecurityGroupId: !Ref LaunchConfigSG
+
+
+  S3Endpoint:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action:
+              - 's3:GetObject'
+            Resource: 
+              # - 'arn:aws:s3:::prod-region-starport-layer-bucket/*'
+              - 'arn:aws:s3:::prod-ap-southeast-2-starport-layer-bucket/*'
+      RouteTableIds:
+        - !Ref PrivateRouteTableA
+        - !Ref PrivateRouteTableB   
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.s3'
+      VpcId: !Ref BasicVpc
+      VpcEndpointType: Gateway
+
+  ECRAPIEndpoint:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      SubnetIds: 
+        - !Ref PrivateSubnetA
+        - !Ref PrivateSubnetB
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.ecr.api'
+      VpcId: !Ref BasicVpc
+      VpcEndpointType: Interface
+      PrivateDnsEnabled: True
+      SecurityGroupIds: 
+        - !Ref VPCEndpointSecurityGroup
+
+  ECRDKREndpoint:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      SubnetIds: 
+        - !Ref PrivateSubnetA
+        - !Ref PrivateSubnetB
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.ecr.dkr'
+      VpcId: !Ref BasicVpc
+      VpcEndpointType: Interface
+      PrivateDnsEnabled: True
+      SecurityGroupIds: 
+        - !Ref VPCEndpointSecurityGroup
+
+  ASGEndpoint:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      SubnetIds: 
+        - !Ref PrivateSubnetA
+        - !Ref PrivateSubnetB
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.autoscaling-plans'
+      VpcId: !Ref BasicVpc
+      VpcEndpointType: Interface
+      PrivateDnsEnabled: True
+      SecurityGroupIds: 
+        - !Ref VPCEndpointSecurityGroup
+
+  SSMEndpoint:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      SubnetIds: 
+        - !Ref PrivateSubnetA
+        - !Ref PrivateSubnetB
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.ssm'
+      VpcId: !Ref BasicVpc
+      VpcEndpointType: Interface
+      PrivateDnsEnabled: True
+      SecurityGroupIds: 
+        - !Ref VPCEndpointSecurityGroup
+
+# loadbalancer provisioned  in public subnets
   ALB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
