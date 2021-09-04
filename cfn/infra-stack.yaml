@@ -182,7 +182,6 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub NAT-route-A${RepositoryName}
-      Description: route internet-bound traffic to nat A
 
   NatRouteB:
     Type: AWS::EC2::Route
@@ -195,8 +194,6 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub NAT-route-B${RepositoryName}
-      Description: route internet-bound traffic to nat B
-
 
   PrivateSubnetARouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
