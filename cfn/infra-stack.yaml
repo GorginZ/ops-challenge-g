@@ -571,7 +571,6 @@ Resources:
           ToPort: 443
           CidrIp: "49.255.41.116/30"
 
-
   LaunchConfigSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
