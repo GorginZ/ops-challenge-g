@@ -388,9 +388,9 @@ Resources:
         - IpProtocol: tcp
           FromPort: 443
           ToPort: 443
-          # CidrIp: "10.0.0.0/16"
+          CidrIp: "10.0.0.0/16"
           #maybe change to just vpc cidr block to make deleting stuff easier...
-          SourceSecurityGroupId: !Ref LaunchConfigSecurityGroup
+          # SourceSecurityGroupId: !Ref LaunchConfigSecurityGroup
 
 
   S3Endpoint:
