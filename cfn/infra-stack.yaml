@@ -204,6 +204,7 @@ Resources:
 # trying to lock down vpc need to revise these strict NACLs
 # open on ephemeral ports for narrow CIDR blocks
 #NACL rules for public subnets
+
   BasicVpcNACLA:
     Type: AWS::EC2::NetworkAcl
     Properties:
@@ -302,6 +303,10 @@ Resources:
       Protocol: -1
       RuleAction: allow
       CidrBlock: 10.0.0.0/24
+      PortRange:
+        From: 1024
+        To: 65535
+
 
 # let public subnet B traffic into private subnets
   NACLBPublicSubnetBInbound:
@@ -313,6 +318,10 @@ Resources:
       Protocol: -1
       RuleAction: allow
       CidrBlock: 10.0.1.0/24
+      PortRange:
+        From: 1024
+        To: 65535
+
 
 # let private subnet A in
   NACLBInboundRule103:
@@ -324,6 +333,10 @@ Resources:
       Protocol: -1
       RuleAction: allow
       CidrBlock: 10.0.2.0/24
+      PortRange:
+        From: 1024
+        To: 65535
+
 
 # let private subnet B in
   NACLBInboundRule104:
@@ -335,6 +348,10 @@ Resources:
       Protocol: -1
       RuleAction: allow
       CidrBlock: 10.0.3.0/24
+      PortRange:
+        From: 1024
+        To: 65535
+
 
 # pretty sure this is s3, it's broad (/16) without this the instances can't pull image 
 # S3 vpc endpoint workaround wasn't working
@@ -347,6 +364,25 @@ Resources:
       Protocol: -1
       RuleAction: allow
       CidrBlock: 52.95.0.0/16
+      PortRange:
+        From: 1024
+        To: 65535
+
+
+  NACLBInboundRule106ForSSMSSH:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Ref: BasicVpcNACLB
+      RuleNumber: 106
+      Protocol: -1
+      RuleAction: allow
+      CidrBlock: 10.0.0.0/16
+      PortRange:
+        From: 22
+        To: 22
+
+
 
 # let traffic out of private subnets
   NACLBOutbound:
@@ -533,14 +569,11 @@ Resources:
       Protocol: HTTP
       TargetType: instance
       UnhealthyThresholdCount: 2
-      UnhealthyThresholdCount: 3
-      VpcId:
-        Ref: 'VPC'
       Tags:
       - Key: Name
         Value: EC2TargetGroup
       - Key: Port
-        Value: 80
+        Value: '80'
       TargetGroupAttributes:
       - Key: deregistration_delay.timeout_seconds
         Value: '100'
