@@ -503,6 +503,35 @@ Resources:
         - Fn::GetAtt: ALBSecurityGroup.GroupId
         # maybe I need this to allow inboun from instance? the alb sg
 
+  SSMMessagesEndpoint:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      SubnetIds: 
+        - !Ref PrivateSubnetA
+        - !Ref PrivateSubnetB
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.ssmmessages'
+      VpcId: !Ref BasicVpc
+      VpcEndpointType: Interface
+      PrivateDnsEnabled: True
+      SecurityGroupIds: 
+        - !Ref VPCEndpointSecurityGroup
+        - Fn::GetAtt: ALBSecurityGroup.GroupId
+
+  EC2MessagesEndpoint:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      SubnetIds: 
+        - !Ref PrivateSubnetA
+        - !Ref PrivateSubnetB
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.ec2messages'
+      VpcId: !Ref BasicVpc
+      VpcEndpointType: Interface
+      PrivateDnsEnabled: True
+      SecurityGroupIds: 
+        - !Ref VPCEndpointSecurityGroup
+        - Fn::GetAtt: ALBSecurityGroup.GroupId
+
+
 # loadbalancer provisioned  in public subnets
   ALB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
