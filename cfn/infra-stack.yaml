@@ -438,10 +438,12 @@ Resources:
           - Effect: Allow
             Principal: '*'
             Action:
-              - 's3:GetObject'
+              # - 's3:GetObject'
+              - '*'
             Resource: 
-              # - 'arn:aws:s3:::prod-region-starport-layer-bucket/*'
               - 'arn:aws:s3:::prod-ap-southeast-2-starport-layer-bucket/*'
+              - 'arn:aws:s3:::repo.ap-southeast-2-.amazonaws.com'
+              - 'arn:aws:s3:::repo.ap-southeast-2.amazonaws.com/*'
       RouteTableIds:
         - !Ref PrivateRouteTableA
         - !Ref PrivateRouteTableB   
