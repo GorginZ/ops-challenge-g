@@ -438,7 +438,7 @@ Resources:
           - Effect: Allow
             Principal: '*'
             Action:
-              # - 's3:GetObject'
+              - 's3:GetObject'
               - '*'
             Resource: 
               - 'arn:aws:s3:::prod-ap-southeast-2-starport-layer-bucket/*'
@@ -727,10 +727,8 @@ Resources:
           Fn::Base64: !Sub
             - |
               #!/usr/bin/env bash
-              cd /tmp
-              sudo yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
-              sudo systemctl enable amazon-ssm-agent
-              sudo systemctl start amazon-ssm-agent
+              yum update -y
+              amazon-linux-extras install docker
               service docker start
               $(aws ecr get-login --no-include-email --region ap-southeast-2)
               docker pull ${ECR_repository}:${Current_commit}
