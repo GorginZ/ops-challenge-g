@@ -547,11 +547,12 @@ Resources:
           - Effect: Allow
             Principal: '*'
             Action:
-              - '*'
+              - 's3:GetObject'
             Resource: 
               - 'arn:aws:s3:::prod-ap-southeast-2-starport-layer-bucket/*'
               - 'arn:aws:s3:::packages.*.amazonaws.com/*'
               - 'arn:aws:s3:::repo.*.amazonaws.com/*'
+              - 'arn:aws:s3:::amazonlinux-2-repos-ap-southeast-2.s3.ap-southeast-2.amazonaws.com/*'
               - 'arn:aws:s3:::amazonlinux.*.amazonaws.com/*'
               - 'arn:aws:s3:::*.amazonaws.com'
               - 'arn:aws:s3:::*.amazonaws.com/*'
