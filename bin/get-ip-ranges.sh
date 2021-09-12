@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# WIP
+# WIP this is in spin-up stack but fiddling with stuff here bc it's a lot to have in the stack-up script hope to have something more eligant soon still better than hard coding aws service Ips tho...
 
 die() { echo “${1:-something went wrong}“; exit “${2:-1}“; }
 
