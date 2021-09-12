@@ -1,14 +1,24 @@
 #!/usr/bin/env bash
-# set e think about other stuffs
-set -e
+die() { echo “${1:-something went wrong}“; exit “${2:-1}“; }
+hash wget || die "wget not found"
+die() { echo “${1:-something went wrong}“; exit “${2:-1}“; }
+hash jq || die "jq not found"
+wget https://ip-ranges.amazonaws.com/ip-ranges.json
+
+res=$(jq -r '[.prefixes[] | select(.region=="ap-southeast-2" and .service=="S3").ip_prefix] | .[]' < ip-ranges.json)
+
+set -- $res
+s3cidrone=$1 || die "could not assign cidr value"
+s3cidrtwo=$2 || die "could not assign cidr value"
+s3cidrthree=$3 || die "could not assign cidr value"
+s3cidrfour=$4 || die "could not assign cidr value"
+s3cidfive=$5 || die "could not assign cidr value" 
 
 ecrname=$(aws cloudformation describe-stacks --stack-name ops-challenge-g-ecr --query "Stacks[0].Outputs[?OutputKey=='RepositoryName'].OutputValue" --output text)
 
 mycertarn=$(aws ssm get-parameter --name "/georgialeng.com/ops-challenge-cert-arn" --output text --query 'Parameter.Value' --no-cli-pager)
 
 myhostedzoneid=$(aws ssm get-parameter --name "/georgialeng.com/public-hosted-zone-id" --output text --query 'Parameter.Value' --no-cli-pager)
-
-
 
 name='app-stack-ops-challenge-g'
 
@@ -22,6 +32,11 @@ aws cloudformation deploy \
             Commit=$commit \
             MyHostedZoneId=$myhostedzoneid \
             MyCertARN=$mycertarn \
+            S3CIDRone=$s3cidrone \
+            S3CIDRtwo=$s3cidtwo \
+            S3CIDRthree=$s3cidrthree \
+            S3CIDRfour=$s3cidrfour \
+            S3CIDRfive=$s3cidrfive \
       --stack-name $name \
       --region ap-southeast-2 \
 			--capabilities CAPABILITY_NAMED_IAM \

@@ -16,6 +16,21 @@ Parameters:
 
   RepositoryName:
     Type: String
+    
+  S3CIDRone:
+    Type: String
+
+  S3CIDRtwo:
+    Type: String
+
+  S3CIDRthree:
+    Type: String
+
+  S3CIDRfour:
+    Type: String
+
+  S3CIDRfive:
+    Type: String
 
 Resources:
 # VPC with public and private subnets TODO: 3rd subnets in AZ3
@@ -233,7 +248,7 @@ Resources:
     Properties:
       NetworkAclId:
         Ref: BasicVpcNACLA
-      RuleNumber: 101
+      RuleNumber: 150
       Protocol: 6
       RuleAction: allow
       CidrBlock: 10.0.2.0/24
@@ -247,7 +262,7 @@ Resources:
     Properties:
       NetworkAclId:
         Ref: BasicVpcNACLA
-      RuleNumber: 102
+      RuleNumber: 200
       Protocol: 6
       RuleAction: allow
       CidrBlock: 10.0.3.0/24
@@ -261,7 +276,7 @@ Resources:
     Properties:
       NetworkAclId:
         Ref: BasicVpcNACLA
-      RuleNumber: 100
+      RuleNumber: 250
       Protocol: -1
       Egress: true
       RuleAction: allow
@@ -299,7 +314,7 @@ Resources:
     Properties:
       NetworkAclId:
         Ref: BasicVpcNACLB
-      RuleNumber: 101
+      RuleNumber: 100
       Protocol: -1
       RuleAction: allow
       CidrBlock: 10.0.0.0/24
@@ -314,7 +329,7 @@ Resources:
     Properties:
       NetworkAclId:
         Ref: BasicVpcNACLB
-      RuleNumber: 102
+      RuleNumber: 150
       Protocol: -1
       RuleAction: allow
       CidrBlock: 10.0.1.0/24
@@ -324,12 +339,12 @@ Resources:
 
 
 # let private subnet A in
-  NACLBInboundRule103:
+  NACLBInboundRulePrivSubnetAin:
     Type: AWS::EC2::NetworkAclEntry
     Properties:
       NetworkAclId:
         Ref: BasicVpcNACLB
-      RuleNumber: 103
+      RuleNumber: 200
       Protocol: -1
       RuleAction: allow
       CidrBlock: 10.0.2.0/24
@@ -339,12 +354,12 @@ Resources:
 
 
 # let private subnet B in
-  NACLBInboundRule104:
+  NACLBInboundRulePrivSubnetBin:
     Type: AWS::EC2::NetworkAclEntry
     Properties:
       NetworkAclId:
         Ref: BasicVpcNACLB
-      RuleNumber: 104
+      RuleNumber: 250
       Protocol: -1
       RuleAction: allow
       CidrBlock: 10.0.3.0/24
@@ -352,29 +367,25 @@ Resources:
         From: 1024
         To: 65535
 
-
-# pretty sure this is s3, it's broad (/16) without this the instances can't pull image 
-# S3 vpc endpoint workaround wasn't working
-  NACLBInboundRule105:
+# let traffic out of private subnets
+  NACLBOutbound:
     Type: AWS::EC2::NetworkAclEntry
     Properties:
       NetworkAclId:
         Ref: BasicVpcNACLB
-      RuleNumber: 105
+      RuleNumber: 300
       Protocol: -1
+      Egress: true
       RuleAction: allow
-      CidrBlock: 52.95.0.0/16
-      PortRange:
-        From: 1024
-        To: 65535
+      CidrBlock: 0.0.0.0/0
 
 
-  NACLBInboundRule106ForSSMSSH:
+  NACLBInboundRuleForSSMSSH:
     Type: AWS::EC2::NetworkAclEntry
     Properties:
       NetworkAclId:
         Ref: BasicVpcNACLB
-      RuleNumber: 106
+      RuleNumber: 350
       Protocol: -1
       RuleAction: allow
       CidrBlock: 10.0.0.0/16
@@ -382,19 +393,74 @@ Resources:
         From: 22
         To: 22
 
-
-
-# let traffic out of private subnets
-  NACLBOutbound:
+# pretty sure this is s3, it's broad (/16) without this the instances can't pull image 
+# S3 vpc endpoint workaround wasn't working
+  NACLBInboundRules3One:
     Type: AWS::EC2::NetworkAclEntry
     Properties:
       NetworkAclId:
         Ref: BasicVpcNACLB
-      RuleNumber: 100
+      RuleNumber: 400
       Protocol: -1
-      Egress: true
       RuleAction: allow
-      CidrBlock: 0.0.0.0/0
+      CidrBlock: !Ref S3CIDRone
+      PortRange:
+        From: 1024
+        To: 65535
+
+  NACLBInboundRules3two:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Ref: BasicVpcNACLB
+      RuleNumber: 450
+      Protocol: -1
+      RuleAction: allow
+      CidrBlock: !Ref S3CIDRtwo
+      PortRange:
+        From: 1024
+        To: 65535
+
+  NACLBInboundRules3three:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Ref: BasicVpcNACLB
+      RuleNumber: 500
+      Protocol: -1
+      RuleAction: allow
+      CidrBlock: !Ref S3CIDRthree
+      PortRange:
+        From: 1024
+        To: 65535
+
+  NACLBInboundRules3four:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Ref: BasicVpcNACLB
+      RuleNumber: 550
+      Protocol: -1
+      RuleAction: allow
+      CidrBlock: !Ref S3CIDRfour
+      PortRange:
+        From: 1024
+        To: 65535
+
+  NACLBInboundRules3five:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Ref: BasicVpcNACLB
+      RuleNumber: 600
+      Protocol: -1
+      RuleAction: allow
+      CidrBlock: !Ref S3CIDRfive
+      PortRange:
+        From: 1024
+        To: 65535
+
+
 
 # above rules associated to private subnet A
   PrivateSubnetNACLBAssociationA:
