@@ -393,8 +393,7 @@ Resources:
         From: 22
         To: 22
 
-# pretty sure this is s3, it's broad (/16) without this the instances can't pull image 
-# S3 vpc endpoint workaround wasn't working
+# s3 ips
   NACLBInboundRules3One:
     Type: AWS::EC2::NetworkAclEntry
     Properties:
@@ -710,6 +709,27 @@ Resources:
               - Fn::GetAtt:
                   - ALB
                   - SecurityGroups
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 1024
+          ToPort: 65535
+          CidrIp: !Ref S3CIDRone
+        - IpProtocol: tcp
+          FromPort: 1024
+          ToPort: 65535
+          CidrIp: !Ref S3CIDRtwo
+        - IpProtocol: tcp
+          FromPort: 1024
+          ToPort: 65535
+          CidrIp: !Ref S3CIDRthree
+        - IpProtocol: tcp
+          FromPort: 1024
+          ToPort: 65535
+          CidrIp: !Ref S3CIDRfour
+        - IpProtocol: tcp
+          FromPort: 1024
+          ToPort: 65535
+          CidrIp: !Ref S3CIDRfive
 
   TargetScalingPolicy:
     Type: AWS::AutoScaling::ScalingPolicy
