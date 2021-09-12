@@ -12,7 +12,9 @@ s3cidrone=$1 || die "could not assign cidr value"
 s3cidrtwo=$2 || die "could not assign cidr value"
 s3cidrthree=$3 || die "could not assign cidr value"
 s3cidrfour=$4 || die "could not assign cidr value"
-s3cidfive=$5 || die "could not assign cidr value" 
+s3cidrfive=$5 || die "could not assign cidr value" 
+
+echo $s3cidrone
 
 ecrname=$(aws cloudformation describe-stacks --stack-name ops-challenge-g-ecr --query "Stacks[0].Outputs[?OutputKey=='RepositoryName'].OutputValue" --output text)
 
@@ -33,7 +35,7 @@ aws cloudformation deploy \
             MyHostedZoneId=$myhostedzoneid \
             MyCertARN=$mycertarn \
             S3CIDRone=$s3cidrone \
-            S3CIDRtwo=$s3cidtwo \
+            S3CIDRtwo=$s3cidrtwo \
             S3CIDRthree=$s3cidrthree \
             S3CIDRfour=$s3cidrfour \
             S3CIDRfive=$s3cidrfive \

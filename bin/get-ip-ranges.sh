@@ -27,8 +27,6 @@ s3cidrtwo=$2
 s3cidrthree=$3
 s3cidrfour=$4
 s3cidfive=$5
-
-
 # for value in $res
 # do
 #     echo $value
