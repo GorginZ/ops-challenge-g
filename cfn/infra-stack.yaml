@@ -709,27 +709,29 @@ Resources:
               - Fn::GetAtt:
                   - ALB
                   - SecurityGroups
-      SecurityGroupEgress:
-        - IpProtocol: tcp
-          FromPort: 1024
-          ToPort: 65535
-          CidrIp: !Ref S3CIDRone
-        - IpProtocol: tcp
-          FromPort: 1024
-          ToPort: 65535
-          CidrIp: !Ref S3CIDRtwo
-        - IpProtocol: tcp
-          FromPort: 1024
-          ToPort: 65535
-          CidrIp: !Ref S3CIDRthree
-        - IpProtocol: tcp
-          FromPort: 1024
-          ToPort: 65535
-          CidrIp: !Ref S3CIDRfour
-        - IpProtocol: tcp
-          FromPort: 1024
-          ToPort: 65535
-          CidrIp: !Ref S3CIDRfive
+        # alternatively can hit the endpoint instead of big eggress
+        # warning this prevents ssm working
+      # SecurityGroupEgress:
+      #   - IpProtocol: tcp
+      #     FromPort: 1024
+      #     ToPort: 65535
+      #     CidrIp: !Ref S3CIDRone
+      #   - IpProtocol: tcp
+      #     FromPort: 1024
+      #     ToPort: 65535
+      #     CidrIp: !Ref S3CIDRtwo
+      #   - IpProtocol: tcp
+      #     FromPort: 1024
+      #     ToPort: 65535
+      #     CidrIp: !Ref S3CIDRthree
+      #   - IpProtocol: tcp
+      #     FromPort: 1024
+      #     ToPort: 65535
+      #     CidrIp: !Ref S3CIDRfour
+      #   - IpProtocol: tcp
+      #     FromPort: 1024
+      #     ToPort: 65535
+      #     CidrIp: !Ref S3CIDRfive
 
   TargetScalingPolicy:
     Type: AWS::AutoScaling::ScalingPolicy
