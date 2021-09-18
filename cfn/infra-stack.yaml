@@ -456,6 +456,10 @@ Resources:
       Egress: true
       RuleAction: allow
       CidrBlock: !Ref S3CIDRone
+      PortRange:
+        From: 1024
+        To: 65535
+
 
 # let traffic out to s3
   NACLBOutboundRules3two:
@@ -468,6 +472,10 @@ Resources:
       Egress: true
       RuleAction: allow
       CidrBlock: !Ref S3CIDRtwo
+      PortRange:
+        From: 1024
+        To: 65535
+
 
 # let traffic out to s3
   NACLBOutboundRules3three:
@@ -480,6 +488,10 @@ Resources:
       Egress: true
       RuleAction: allow
       CidrBlock: !Ref S3CIDRthree
+      PortRange:
+        From: 1024
+        To: 65535
+
 
 # let traffic out to s3
   NACLBOutboundRules3four:
@@ -492,6 +504,10 @@ Resources:
       Egress: true
       RuleAction: allow
       CidrBlock: !Ref S3CIDRfour
+      PortRange:
+        From: 1024
+        To: 65535
+
 
 # let traffic out to s3
   NACLBOutboundRules3five:
@@ -504,6 +520,10 @@ Resources:
       Egress: true
       RuleAction: allow
       CidrBlock: !Ref S3CIDRfive
+      PortRange:
+        From: 1024
+        To: 65535
+
 
 # above rules associated to private subnet A
   PrivateSubnetNACLBAssociationA:
