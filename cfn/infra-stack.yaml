@@ -434,6 +434,7 @@ Resources:
 
 
 # NACLB OUTBOUND
+# these rules misleading coz aleady allow out to 0.0.0.0/0
 # let traffic out of private subnets
   NACLBOutbound:
     Type: AWS::EC2::NetworkAclEntry
