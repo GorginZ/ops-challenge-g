@@ -548,6 +548,29 @@ Resources:
       RuleAction: allow
       CidrBlock: 10.0.1.0/24
 
+  NACLBOutboundToPrivA:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Ref: BasicVpcNACLB
+      RuleNumber: 400
+      Protocol: -1
+      Egress: true
+      RuleAction: allow
+      CidrBlock: 10.0.2.0/24
+
+  NACLBOutboundToPrivB:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Ref: BasicVpcNACLB
+      RuleNumber: 400
+      Protocol: -1
+      Egress: true
+      RuleAction: allow
+      CidrBlock: 10.0.3.0/24
+
+
 # above rules associated to private subnet A
   PrivateSubnetNACLBAssociationA:
     Type: AWS::EC2::SubnetNetworkAclAssociation
