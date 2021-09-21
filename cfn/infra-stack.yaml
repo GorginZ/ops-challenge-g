@@ -16,8 +16,26 @@ Parameters:
 
   RepositoryName:
     Type: String
+    
+  S3CIDRone:
+    Type: String
+
+  S3CIDRtwo:
+    Type: String
+
+  S3CIDRthree:
+    Type: String
+
+  S3CIDRfour:
+    Type: String
+
+  S3CIDRfive:
+    Type: String
 
 Resources:
+# VPC with public and private subnets TODO: 3rd subnets in AZ3
+# ASG instances  sit in private subnets traffic routed to them via 
+# ALB sittin in public subnet
   BasicVpc:
     Type: AWS::EC2::VPC
     Properties:
@@ -35,6 +53,9 @@ Resources:
       AvailabilityZone: ap-southeast-2a
       VpcId: !Ref BasicVpc
       MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub public-sn-a${RepositoryName}
 
   PublicSubnetB:
     Type: AWS::EC2::Subnet
@@ -43,6 +64,10 @@ Resources:
       AvailabilityZone: ap-southeast-2b
       VpcId: !Ref BasicVpc
       MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub public-sn-b${RepositoryName}
+
 
   PrivateSubnetA:
     Type: AWS::EC2::Subnet
@@ -50,6 +75,10 @@ Resources:
       CidrBlock: 10.0.2.0/24
       AvailabilityZone: ap-southeast-2a
       VpcId: !Ref BasicVpc
+      Tags:
+        - Key: Name
+          Value: !Sub private-sn-a${RepositoryName}
+
 
   PrivateSubnetB:
     Type: AWS::EC2::Subnet
@@ -57,11 +86,17 @@ Resources:
       CidrBlock: 10.0.3.0/24
       AvailabilityZone: ap-southeast-2b
       VpcId: !Ref BasicVpc
+      Tags:
+        - Key: Name
+          Value: !Sub private-sn-b${RepositoryName}
 
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref BasicVpc
+      Tags:
+        - Key: Name
+          Value: !Sub public-rt-${RepositoryName}
 
   InternetGateway:
     Type: AWS::EC2::InternetGateway
@@ -91,60 +126,83 @@ Resources:
       RouteTableId: !Ref PublicRouteTable
 
   NatA:
-   Type: AWS::EC2::NatGateway
-   Properties:
+    Type: AWS::EC2::NatGateway
+    Properties:
       AllocationId:
-         Fn::GetAtt: EipA.AllocationId
+          Fn::GetAtt: EipA.AllocationId
       SubnetId:
-         Ref: PublicSubnetA
+        Ref: PublicSubnetA
+      Tags:
+        - Key: Name
+          Value: !Sub NAT-A-${RepositoryName}
+
 
   EipA:
     DependsOn: InternetGatewayAttachment
     Type: AWS::EC2::EIP
     Properties:
-        Domain: vpc
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: !Sub EIP-A-${RepositoryName}
+
 
   NatB:
-   Type: AWS::EC2::NatGateway
-   Properties:
+    Type: AWS::EC2::NatGateway
+    Properties:
       AllocationId:
-         Fn::GetAtt: EipB.AllocationId
+        Fn::GetAtt: EipB.AllocationId
       SubnetId:
-         Ref: PublicSubnetB
+        Ref: PublicSubnetB
+      Tags:
+        - Key: Name
+          Value: !Sub NAT-B-${RepositoryName}
+
 
   EipB:
     DependsOn: InternetGatewayAttachment
     Type: AWS::EC2::EIP
     Properties:
-        Domain: vpc
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: !Sub EIP-B-${RepositoryName}
+
 
   PrivateRouteTableA:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref BasicVpc
+      Tags:
+        - Key: Name
+          Value: !Sub private-rt-a${RepositoryName}
+
 
   PrivateRouteTableB:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref BasicVpc
+      Tags:
+        - Key: Name
+          Value: !Sub private-rt-b${RepositoryName}
 
   NatRouteA:
     Type: AWS::EC2::Route
     Properties:
-        RouteTableId:
-          Ref: PrivateRouteTableA
-        DestinationCidrBlock: 0.0.0.0/0
-        NatGatewayId:
-          Ref: NatA
+      RouteTableId:
+        Ref: PrivateRouteTableA
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId:
+        Ref: NatA
 
   NatRouteB:
     Type: AWS::EC2::Route
     Properties:
-        RouteTableId:
-          Ref: PrivateRouteTableB
-        DestinationCidrBlock: 0.0.0.0/0
-        NatGatewayId:
-          Ref: NatB
+      RouteTableId:
+        Ref: PrivateRouteTableB
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId:
+        Ref: NatB
 
   PrivateSubnetARouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
@@ -161,13 +219,14 @@ Resources:
 # trying to lock down vpc need to revise these strict NACLs
 # open on ephemeral ports for narrow CIDR blocks
 #NACL rules for public subnets
+
   BasicVpcNACLA:
     Type: AWS::EC2::NetworkAcl
     Properties:
       VpcId: !Ref BasicVpc
       Tags:
         - Key: Name
-          Value: !Ref RepositoryName
+          Value: !Sub NACL-A${RepositoryName}
 
 # let internet in
   NACLAInboundClientTraffic:
@@ -189,7 +248,7 @@ Resources:
     Properties:
       NetworkAclId:
         Ref: BasicVpcNACLA
-      RuleNumber: 101
+      RuleNumber: 150
       Protocol: 6
       RuleAction: allow
       CidrBlock: 10.0.2.0/24
@@ -203,7 +262,7 @@ Resources:
     Properties:
       NetworkAclId:
         Ref: BasicVpcNACLA
-      RuleNumber: 102
+      RuleNumber: 200
       Protocol: 6
       RuleAction: allow
       CidrBlock: 10.0.3.0/24
@@ -217,7 +276,7 @@ Resources:
     Properties:
       NetworkAclId:
         Ref: BasicVpcNACLA
-      RuleNumber: 100
+      RuleNumber: 250
       Protocol: -1
       Egress: true
       RuleAction: allow
@@ -248,18 +307,21 @@ Resources:
       VpcId: !Ref BasicVpc
       Tags:
         - Key: Name
-          Value: !Ref RepositoryName
-
+          Value: !Sub 'NACL-B${RepositoryName}'
 # let public subnet A traffic into private subnets
   NACLBPublicSubnetAInbound:
     Type: AWS::EC2::NetworkAclEntry
     Properties:
       NetworkAclId:
         Ref: BasicVpcNACLB
-      RuleNumber: 101
+      RuleNumber: 100
       Protocol: -1
       RuleAction: allow
       CidrBlock: 10.0.0.0/24
+      PortRange:
+        From: 1024
+        To: 65535
+
 
 # let public subnet B traffic into private subnets
   NACLBPublicSubnetBInbound:
@@ -267,56 +329,233 @@ Resources:
     Properties:
       NetworkAclId:
         Ref: BasicVpcNACLB
-      RuleNumber: 102
+      RuleNumber: 150
       Protocol: -1
       RuleAction: allow
       CidrBlock: 10.0.1.0/24
+      PortRange:
+        From: 1024
+        To: 65535
 
 # let private subnet A in
-  NACLBInboundRule103:
+  NACLBInboundRulePrivSubnetAin:
     Type: AWS::EC2::NetworkAclEntry
     Properties:
       NetworkAclId:
         Ref: BasicVpcNACLB
-      RuleNumber: 103
+      RuleNumber: 200
       Protocol: -1
       RuleAction: allow
       CidrBlock: 10.0.2.0/24
+      PortRange:
+        From: 1024
+        To: 65535
 
 # let private subnet B in
-  NACLBInboundRule104:
+  NACLBInboundRulePrivSubnetBin:
     Type: AWS::EC2::NetworkAclEntry
     Properties:
       NetworkAclId:
         Ref: BasicVpcNACLB
-      RuleNumber: 104
+      RuleNumber: 250
       Protocol: -1
       RuleAction: allow
       CidrBlock: 10.0.3.0/24
+      PortRange:
+        From: 1024
+        To: 65535
 
-# pretty sure this is s3, it's broad (/16) without this the instances can't pull image 
-# S3 vpc endpoint workaround wasn't working
-  NACLBInboundRule105:
+#NACLB  s3 inbound 
+  NACLBInboundRules3One:
     Type: AWS::EC2::NetworkAclEntry
     Properties:
       NetworkAclId:
         Ref: BasicVpcNACLB
-      RuleNumber: 105
+      RuleNumber: 400
       Protocol: -1
       RuleAction: allow
-      CidrBlock: 52.95.0.0/16
+      CidrBlock: !Ref S3CIDRone
+      PortRange:
+        From: 1024
+        To: 65535
 
-# let traffic out of private subnets
-  NACLBOutbound:
+  NACLBInboundRules3two:
     Type: AWS::EC2::NetworkAclEntry
     Properties:
       NetworkAclId:
         Ref: BasicVpcNACLB
-      RuleNumber: 100
+      RuleNumber: 450
+      Protocol: -1
+      RuleAction: allow
+      CidrBlock: !Ref S3CIDRtwo
+      PortRange:
+        From: 1024
+        To: 65535
+
+  NACLBInboundRules3three:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Ref: BasicVpcNACLB
+      RuleNumber: 500
+      Protocol: -1
+      RuleAction: allow
+      CidrBlock: !Ref S3CIDRthree
+      PortRange:
+        From: 1024
+        To: 65535
+
+  NACLBInboundRules3four:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Ref: BasicVpcNACLB
+      RuleNumber: 550
+      Protocol: -1
+      RuleAction: allow
+      CidrBlock: !Ref S3CIDRfour
+      PortRange:
+        From: 1024
+        To: 65535
+
+  NACLBInboundRules3five:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Ref: BasicVpcNACLB
+      RuleNumber: 600
+      Protocol: -1
+      RuleAction: allow
+      CidrBlock: !Ref S3CIDRfive
+      PortRange:
+        From: 1024
+        To: 65535
+
+
+
+# NACLB OUTBOUND
+# let traffic out to s3
+  NACLBOutboundRules3One:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Ref: BasicVpcNACLB
+      RuleNumber: 101
       Protocol: -1
       Egress: true
       RuleAction: allow
-      CidrBlock: 0.0.0.0/0
+      CidrBlock: !Ref S3CIDRone
+      PortRange:
+        From: 1024
+        To: 65535
+
+# let traffic out to s3
+  NACLBOutboundRules3two:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Ref: BasicVpcNACLB
+      RuleNumber: 150
+      Protocol: -1
+      Egress: true
+      RuleAction: allow
+      CidrBlock: !Ref S3CIDRtwo
+      PortRange:
+        From: 1024
+        To: 65535
+
+
+# let traffic out to s3
+  NACLBOutboundRules3three:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Ref: BasicVpcNACLB
+      RuleNumber: 200
+      Protocol: -1
+      Egress: true
+      RuleAction: allow
+      CidrBlock: !Ref S3CIDRthree
+      PortRange:
+        From: 1024
+        To: 65535
+
+
+# let traffic out to s3
+  NACLBOutboundRules3four:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Ref: BasicVpcNACLB
+      RuleNumber: 250
+      Protocol: -1
+      Egress: true
+      RuleAction: allow
+      CidrBlock: !Ref S3CIDRfour
+      PortRange:
+        From: 1024
+        To: 65535
+
+
+# let traffic out to s3
+  NACLBOutboundRules3five:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Ref: BasicVpcNACLB
+      RuleNumber: 300
+      Protocol: -1
+      Egress: true
+      RuleAction: allow
+      CidrBlock: !Ref S3CIDRfive
+      PortRange:
+        From: 1024
+        To: 65535
+
+  NACLBOutboundToPubA:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Ref: BasicVpcNACLB
+      RuleNumber: 350
+      Protocol: -1
+      Egress: true
+      RuleAction: allow
+      CidrBlock: 10.0.0.0/24
+
+  NACLBOutboundToPubB:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Ref: BasicVpcNACLB
+      RuleNumber: 400
+      Protocol: -1
+      Egress: true
+      RuleAction: allow
+      CidrBlock: 10.0.1.0/24
+
+  NACLBOutboundToPrivA:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Ref: BasicVpcNACLB
+      RuleNumber: 450
+      Protocol: -1
+      Egress: true
+      RuleAction: allow
+      CidrBlock: 10.0.2.0/24
+
+  NACLBOutboundToPrivB:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      NetworkAclId:
+        Ref: BasicVpcNACLB
+      RuleNumber: 500
+      Protocol: -1
+      Egress: true
+      RuleAction: allow
+      CidrBlock: 10.0.3.0/24
+
 
 # above rules associated to private subnet A
   PrivateSubnetNACLBAssociationA:
@@ -336,6 +575,125 @@ Resources:
       NetworkAclId:
         Ref: BasicVpcNACLB
 
+  # VPC endpoints these are required because of the very restrictive NACLS
+  VPCEndpointSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      VpcId: !Ref BasicVpc
+      GroupDescription: 'Security group for VPC Endpoint'
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: "10.0.0.0/16"
+          #maybe change to just vpc cidr block to make deleting stuff easier...
+          # SourceSecurityGroupId: !Ref LaunchConfigSecurityGroup
+
+
+  S3Endpoint:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action:
+              - 's3:GetObject'
+            Resource: 
+              - 'arn:aws:s3:::prod-ap-southeast-2-starport-layer-bucket/*'
+              - 'arn:aws:s3:::amazonlinux-2-repos-ap-southeast-2/*'
+      RouteTableIds:
+        - !Ref PrivateRouteTableA
+        - !Ref PrivateRouteTableB   
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.s3'
+      VpcId: !Ref BasicVpc
+      VpcEndpointType: Gateway
+
+  ECRAPIEndpoint:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      SubnetIds: 
+        - !Ref PrivateSubnetA
+        - !Ref PrivateSubnetB
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.ecr.api'
+      VpcId: !Ref BasicVpc
+      VpcEndpointType: Interface
+      PrivateDnsEnabled: True
+      SecurityGroupIds: 
+        - !Ref VPCEndpointSecurityGroup
+
+  ECRDKREndpoint:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      SubnetIds: 
+        - !Ref PrivateSubnetA
+        - !Ref PrivateSubnetB
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.ecr.dkr'
+      VpcId: !Ref BasicVpc
+      VpcEndpointType: Interface
+      PrivateDnsEnabled: True
+      SecurityGroupIds: 
+        - !Ref VPCEndpointSecurityGroup
+
+  ASGEndpoint:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      SubnetIds: 
+        - !Ref PrivateSubnetA
+        - !Ref PrivateSubnetB
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.autoscaling-plans'
+      VpcId: !Ref BasicVpc
+      VpcEndpointType: Interface
+      PrivateDnsEnabled: True
+      SecurityGroupIds: 
+        - !Ref VPCEndpointSecurityGroup
+
+  SSMEndpoint:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      SubnetIds: 
+        - !Ref PrivateSubnetA
+        - !Ref PrivateSubnetB
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.ssm'
+      VpcId: !Ref BasicVpc
+      VpcEndpointType: Interface
+      PrivateDnsEnabled: True
+      SecurityGroupIds: 
+        - !Ref VPCEndpointSecurityGroup
+        - Fn::GetAtt: ALBSecurityGroup.GroupId
+        # maybe I need this to allow inboun from instance? the alb sg
+
+  SSMMessagesEndpoint:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      SubnetIds: 
+        - !Ref PrivateSubnetA
+        - !Ref PrivateSubnetB
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.ssmmessages'
+      VpcId: !Ref BasicVpc
+      VpcEndpointType: Interface
+      PrivateDnsEnabled: True
+      SecurityGroupIds: 
+        - !Ref VPCEndpointSecurityGroup
+        - Fn::GetAtt: ALBSecurityGroup.GroupId
+
+  EC2MessagesEndpoint:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      SubnetIds: 
+        - !Ref PrivateSubnetA
+        - !Ref PrivateSubnetB
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.ec2messages'
+      VpcId: !Ref BasicVpc
+      VpcEndpointType: Interface
+      PrivateDnsEnabled: True
+      SecurityGroupIds: 
+        - !Ref VPCEndpointSecurityGroup
+        - Fn::GetAtt: ALBSecurityGroup.GroupId
+
+
+# loadbalancer provisioned  in public subnets
   ALB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
@@ -373,9 +731,6 @@ Resources:
       AliasTarget:
         DNSName: !GetAtt ALB.DNSName 
         HostedZoneId: !GetAtt ALB.CanonicalHostedZoneID
-        # DNSName: !Ref ALBDnsName
-        # HostedZoneId: !Ref ALBCanonicalHostedZoneID
-
 
   ALBHTTPSListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
@@ -404,14 +759,11 @@ Resources:
       Protocol: HTTP
       TargetType: instance
       UnhealthyThresholdCount: 2
-      UnhealthyThresholdCount: 3
-      VpcId:
-        Ref: 'VPC'
       Tags:
       - Key: Name
         Value: EC2TargetGroup
       - Key: Port
-        Value: 80
+        Value: '80'
       TargetGroupAttributes:
       - Key: deregistration_delay.timeout_seconds
         Value: '100'
@@ -435,7 +787,6 @@ Resources:
           FromPort: 80
           ToPort: 443
           CidrIp: "49.255.41.116/30"
-
 
   LaunchConfigSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -535,6 +886,8 @@ Resources:
           Fn::Base64: !Sub
             - |
               #!/usr/bin/env bash
+              yum update -y
+              amazon-linux-extras install docker
               service docker start
               $(aws ecr get-login --no-include-email --region ap-southeast-2)
               docker pull ${ECR_repository}:${Current_commit}
