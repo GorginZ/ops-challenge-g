@@ -539,7 +539,7 @@ Resources:
     Properties:
       NetworkAclId:
         Ref: BasicVpcNACLB
-      RuleNumber: 400
+      RuleNumber: 450
       Protocol: -1
       Egress: true
       RuleAction: allow
@@ -550,7 +550,7 @@ Resources:
     Properties:
       NetworkAclId:
         Ref: BasicVpcNACLB
-      RuleNumber: 400
+      RuleNumber: 500
       Protocol: -1
       Egress: true
       RuleAction: allow
