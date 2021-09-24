@@ -421,6 +421,12 @@ Resources:
 
 
 # NACLB OUTBOUND
+# I want it like this but...  leave -1 for now it ignores port ranges
+      # Protocol: 6
+      # PortRange:
+      #   From: 80
+      #   To: 443
+
 # let traffic out to s3
   NACLBOutboundRules3One:
     Type: AWS::EC2::NetworkAclEntry
@@ -428,13 +434,13 @@ Resources:
       NetworkAclId:
         Ref: BasicVpcNACLB
       RuleNumber: 101
-      Protocol: 6
+      Protocol: -1
       Egress: true
       RuleAction: allow
       CidrBlock: !Ref S3CIDRone
       PortRange:
-        From: 80
-        To: 443
+        From: 1024
+        To: 65535
 
 # let traffic out to s3
   NACLBOutboundRules3two:
@@ -443,13 +449,13 @@ Resources:
       NetworkAclId:
         Ref: BasicVpcNACLB
       RuleNumber: 150
-      Protocol: 6
+      Protocol: -1
       Egress: true
       RuleAction: allow
       CidrBlock: !Ref S3CIDRtwo
       PortRange:
-        From: 80
-        To: 443
+        From: 1024
+        To: 65535
 
 
 # let traffic out to s3
@@ -459,13 +465,14 @@ Resources:
       NetworkAclId:
         Ref: BasicVpcNACLB
       RuleNumber: 200
-      Protocol: 6
+      Protocol: -1
       Egress: true
       RuleAction: allow
       CidrBlock: !Ref S3CIDRthree
       PortRange:
-        From: 80
-        To: 443
+        From: 1024
+        To: 65535
+
 
 # let traffic out to s3
   NACLBOutboundRules3four:
@@ -474,13 +481,14 @@ Resources:
       NetworkAclId:
         Ref: BasicVpcNACLB
       RuleNumber: 250
-      Protocol: 6
+      Protocol: -1
       Egress: true
       RuleAction: allow
       CidrBlock: !Ref S3CIDRfour
       PortRange:
-        From: 80
-        To: 443
+        From: 1024
+        To: 65535
+
 
 # let traffic out to s3
   NACLBOutboundRules3five:
@@ -489,13 +497,14 @@ Resources:
       NetworkAclId:
         Ref: BasicVpcNACLB
       RuleNumber: 300
-      Protocol: 6
+      Protocol: -1
       Egress: true
       RuleAction: allow
       CidrBlock: !Ref S3CIDRfive
       PortRange:
-        From: 80
-        To: 443
+        From: 1024
+        To: 65535
+
 
   NACLBOutboundToPubA:
     Type: AWS::EC2::NetworkAclEntry
