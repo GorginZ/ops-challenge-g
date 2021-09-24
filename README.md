@@ -12,11 +12,16 @@
 /metrics: returns some basic information about the app.
 
 
-## **required to deploy**: 
-
+## **required for manual deploy**: 
 - [AWS CLI V2](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html). and configured creds
 - [docker](https://docs.docker.com/engine/install/).
-- access to an IAM role in my admin group *(shrug)*
+
+## **aws config requirements**: 
+- paramstore values:
+- for env secret => eg /cfg/ops-challenge-g/secret
+- /georgialeng.com/ops-challenge-cert-arn cert for load balancer
+- /georgialeng.com/public-hosted-zone-id hosted zone ID
+- access to an IAM role in my admin group if these are not configured *(shrug)*
 
 ## **requiredto work on src**: 
 
