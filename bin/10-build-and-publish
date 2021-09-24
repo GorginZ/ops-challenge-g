@@ -7,9 +7,8 @@ commit=$(git describe --tags --always)
 
 secret=$(aws ssm get-parameter --name "/georgialeng.com/ops-challenge/secret" --with-decryption --output text --query 'Parameter.Value' --no-cli-pager)
 
-
-docker build -t "$ecrname:$commit" . --build-arg SECRET=$SECRET 
+docker build -t "$ecrname:$commit" . --build-arg SECRET=$secret 
 docker push "$ecrname:$commit"
 
-docker build -t "$ecrname:latest" . --build-arg SECRET=$SECRET
+docker build -t "$ecrname:latest" . --build-arg SECRET=$secret
 docker push "$ecrname:latest"
