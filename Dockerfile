@@ -3,5 +3,6 @@ RUN mkdir /app
 ADD . /app
 WORKDIR /app
 ARG SECRET
+ENV SECRET=$SECRET
 RUN go build -o main .
 CMD ["/app/main"]
