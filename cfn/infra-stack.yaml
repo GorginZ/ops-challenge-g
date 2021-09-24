@@ -318,10 +318,6 @@ Resources:
       Protocol: -1
       RuleAction: allow
       CidrBlock: 10.0.0.0/24
-      PortRange:
-        From: 1024
-        To: 65535
-
 
 # let public subnet B traffic into private subnets
   NACLBPublicSubnetBInbound:
@@ -333,9 +329,6 @@ Resources:
       Protocol: -1
       RuleAction: allow
       CidrBlock: 10.0.1.0/24
-      PortRange:
-        From: 1024
-        To: 65535
 
 # let private subnet A in
   NACLBInboundRulePrivSubnetAin:
@@ -347,9 +340,6 @@ Resources:
       Protocol: -1
       RuleAction: allow
       CidrBlock: 10.0.2.0/24
-      PortRange:
-        From: 1024
-        To: 65535
 
 # let private subnet B in
   NACLBInboundRulePrivSubnetBin:
@@ -361,9 +351,6 @@ Resources:
       Protocol: -1
       RuleAction: allow
       CidrBlock: 10.0.3.0/24
-      PortRange:
-        From: 1024
-        To: 65535
 
 #NACLB  s3 inbound 
   NACLBInboundRules3One:
@@ -372,7 +359,7 @@ Resources:
       NetworkAclId:
         Ref: BasicVpcNACLB
       RuleNumber: 400
-      Protocol: -1
+      Protocol: 6
       RuleAction: allow
       CidrBlock: !Ref S3CIDRone
       PortRange:
@@ -385,7 +372,7 @@ Resources:
       NetworkAclId:
         Ref: BasicVpcNACLB
       RuleNumber: 450
-      Protocol: -1
+      Protocol: 6
       RuleAction: allow
       CidrBlock: !Ref S3CIDRtwo
       PortRange:
@@ -398,7 +385,7 @@ Resources:
       NetworkAclId:
         Ref: BasicVpcNACLB
       RuleNumber: 500
-      Protocol: -1
+      Protocol: 6
       RuleAction: allow
       CidrBlock: !Ref S3CIDRthree
       PortRange:
@@ -411,7 +398,7 @@ Resources:
       NetworkAclId:
         Ref: BasicVpcNACLB
       RuleNumber: 550
-      Protocol: -1
+      Protocol: 6
       RuleAction: allow
       CidrBlock: !Ref S3CIDRfour
       PortRange:
@@ -424,7 +411,7 @@ Resources:
       NetworkAclId:
         Ref: BasicVpcNACLB
       RuleNumber: 600
-      Protocol: -1
+      Protocol: 6
       RuleAction: allow
       CidrBlock: !Ref S3CIDRfive
       PortRange:
@@ -434,6 +421,12 @@ Resources:
 
 
 # NACLB OUTBOUND
+# I want it like this but...  leave -1 for now it ignores port ranges
+      # Protocol: 6
+      # PortRange:
+      #   From: 80
+      #   To: 443
+
 # let traffic out to s3
   NACLBOutboundRules3One:
     Type: AWS::EC2::NetworkAclEntry
@@ -511,6 +504,7 @@ Resources:
       PortRange:
         From: 1024
         To: 65535
+
 
   NACLBOutboundToPubA:
     Type: AWS::EC2::NetworkAclEntry

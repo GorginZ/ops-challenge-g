@@ -51,10 +51,8 @@ func (h *handler) giveToken(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)
 		enc.Encode(out)
 		return
-	} else {
-		w.WriteHeader(500)
 	}
-
+	w.WriteHeader(500)
 }
 
 func createMAC(message, key []byte) []byte {
